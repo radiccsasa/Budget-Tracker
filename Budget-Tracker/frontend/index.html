@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Budget Tracker</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #5e72e4;
+            --secondary: #825ee4;
+            --dark: #2d3748;
+            --light: #f7fafc;
+            --success: #48bb78;
+            --danger: #f56565;
+            --card-bg: rgba(255, 255, 255, 0.9);
+            --text-dark: #2d3748;
+            --text-light: #4a5568;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: #f0f4f8;
+            color: var(--text-dark);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+        
+        h1, h2, h3 {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 500;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .dashboard {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .summary-section {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .main-content {
+            display: flex;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        
+        .form-section {
+            flex: 1;
+            min-width: 300px;
+        }
+        
+        .transactions-section {
+            flex: 3;
+        }
+        
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1.5rem;
+        }
+        
+        .summary-card {
+            text-align: center;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            background: white;
+        }
+        
+        .income-summary {
+            border-top: 4px solid var(--success);
+        }
+        
+        .expense-summary {
+            border-top: 4px solid var(--danger);
+        }
+        
+        .balance-summary {
+            border-top: 4px solid var(--primary);
+        }
+        
+        .summary-amount {
+            font-size: 1.8rem;
+            font-weight: 500;
+            margin-top: 0.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 12px;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            color: var(--text-dark);
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(94, 114, 228, 0.2);
+        }
+        
+        button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-family: 'Roboto', sans-serif;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+            font-size: 1rem;
+        }
+        
+        button:hover {
+            background: #4a5acf;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .transactions-container {
+            overflow-x: auto;
+            margin-top: 1.5rem;
+            border-radius: 8px;
+            background: white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 600px;
+        }
+        
+        th, td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        th {
+            background: #f7fafc;
+            color: var(--text-light);
+            font-family: 'Roboto', sans-serif;
+            font-weight: 500;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 0.5px;
+            position: sticky;
+            top: 0;
+        }
+        
+        tr:hover {
+            background: #f8fafc;
+        }
+        
+        .income {
+            color: var(--success);
+            font-weight: 500;
+        }
+        
+        .expense {
+            color: var(--danger);
+            font-weight: 500;
+        }
+        
+        .delete-btn {
+            background: var(--danger);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            width: auto;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .delete-btn:hover {
+            background: #e53e3e;
+            transform: translateY(-1px);
+        }
+        
+        .sortable {
+            cursor: pointer;
+            position: relative;
+            padding-right: 25px !important;
+            user-select: none;
+        }
+        
+        .sortable:hover {
+            background-color: rgba(94, 114, 228, 0.1);
+        }
+        
+        .sort-icon {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 12px;
+        }
+        
+        .sorted-asc .sort-icon::after {
+            content: "↑";
+        }
+        
+        .sorted-desc .sort-icon::after {
+            content: "↓";
+        }
+        
+        .filters {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .filter-group {
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        
+        .filter-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        @media (max-width: 1024px) {
+            .main-content {
+                flex-direction: column;
+            }
+            
+            .summary-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .filters {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <h1>Budget Tracker</h1>
+        
+        <div class="summary-section">
+            <div class="summary-card income-summary">
+                <h3>Income</h3>
+                <div class="summary-amount" id="totalIncome">0.00</div>
+            </div>
+            
+            <div class="summary-card expense-summary">
+                <h3>Expenses</h3>
+                <div class="summary-amount" id="totalExpenses">0.00</div>
+            </div>
+            
+            <div class="summary-card balance-summary">
+                <h3>Balance</h3>
+                <div class="summary-amount" id="balance">0.00</div>
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <div class="form-section">
+                <div class="card">
+                    <h2>Add Transaction</h2>
+                    <form id="transactionForm">
+                        <div class="form-group">
+                            <label for="title">Title</label>
+                            <input type="text" id="title" required autocomplete="off">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="amount">Amount</label>
+                            <input type="number" id="amount" step="0.01" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="date">Date</label>
+                            <input type="date" id="date" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="type">Type</label>
+                            <select id="type" required>
+                                <option value="INCOME">Income</option>
+                                <option value="EXPENSE">Expense</option>
+                            </select>
+                        </div>
+                        
+                        <button type="submit">Add Transaction</button>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="transactions-section">
+                <div class="card">
+                    <h2>Transaction History</h2>
+                    
+                    <div class="filters">
+                        <div class="filter-group">
+                            <label>Transaction Type</label>
+                            <div class="checkbox-group">
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="showIncome" checked>
+                                    <label for="showIncome">Income</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="showExpenses" checked>
+                                    <label for="showExpenses">Expenses</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="filter-group">
+                            <label for="startDate">From Date</label>
+                            <input type="date" id="startDate">
+                        </div>
+                        
+                        <div class="filter-group">
+                            <label for="endDate">To Date</label>
+                            <input type="date" id="endDate">
+                        </div>
+                    </div>
+                    
+                    <div class="transactions-container">
+                        <table id="transactionsTable">
+                            <thead>
+                                <tr>
+                                    <th>Title</th>
+                                    <th class="sortable" data-sort="amount">Amount 
+                                        <span class="sort-icon" id="amount-sort-icon"></span>
+                                    </th>
+                                    <th class="sortable" data-sort="date">Date 
+                                        <span class="sort-icon" id="date-sort-icon"></span>
+                                    </th>
+                                    <th>Type</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Transactions will be inserted here by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="app.js"></script>
+</body>
+</html>
